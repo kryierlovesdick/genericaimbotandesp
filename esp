@@ -8,8 +8,8 @@ ESP.Parent = game.CoreGui
 local BoxESP = Instance.new("Frame")
 BoxESP.Name = "BoxESP"
 BoxESP.Size = UDim2.new(0, 100, 0, 100)
-_G.BoxESP.BackgroundColor3 = Color3.new(1, 0, 0)
-_G.BoxESP.BorderSizePixel = 0
+_G.BoxESPBackgroundColor3 = Color3.new(1, 0, 0)
+_G.BoxESPBorderSizePixel = 0
 BoxESP.Parent = ESP
 
 local function DrawBoxESP(player)
