@@ -1,87 +1,47 @@
-local function DrawESP()
-    if not _G.ESPEnabled then return end
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer then
-            local character = v.Character
-            if character then
-                local humanoid = character:FindFirstChild("Humanoid")
-                if humanoid then
-                    local rootPart = character:FindFirstChild("HumanoidRootPart")
-                    if rootPart then
-                        local distance = (rootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                        if distance <= _G.ESPRange then
-                            -- Draw corner ESP
-                            if _G.CornerESP then
-                                local corners = {
-                                    {rootPart.Position + Vector3.new(-0.5, 0, -0.5)},
-                                    {rootPart.Position + Vector3.new(0.5, 0, -0.5)},
-                                    {rootPart.Position + Vector3.new(0.5, 0, 0.5)},
-                                    {rootPart.Position + Vector3.new(-0.5, 0, 0.5)}
-                                }
-                                for i = 1, #corners do
-                                    local corner = corners[i]
-                                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(corner)
-                                    if screenPos then
-                                        local x, y = screenPos.X, screenPos.Y
-                                        local size = 5
-                                        local color = _G.ESPColor
-                                        local transparency = _G.ESPTransparency
-                                        game.Workspace.CurrentCamera:DrawCircle(x, y, size, color, transparency)
-                                    end
-                                end
-                            end
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-                            -- Draw box ESP
-                            if _G.BoxESP then
-                                local boxSize = Vector3.new(1, 2, 1)
-                                local boxPosition = rootPart.Position + Vector3.new(0, 1, 0)
-                                local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(boxPosition)
-                                if screenPos then
-                                    local x, y = screenPos.X, screenPos.Y
-                                    local size = 5
-                                    local color = _G.ESPColor
-                                    local transparency = _G.ESPTransparency
-                                    game.Workspace.CurrentCamera:DrawRectangle(x, y, size, size, color, transparency)
-                                end
-                            end
+local ESP = Instance.new("ScreenGui")
+ESP.Name = "ESP"
+ESP.Parent = game.CoreGui
 
-                            -- Draw skeleton ESP
-                            if _G.SkeletonESP then
-                                local skeletonParts = {}
-                                for _, part in pairs(character:GetDescendants()) do
-                                    if part:IsA("BasePart") then
-                                        table.insert(skeletonParts, part)
-                                    end
-                                end
-                                for i = 1, #skeletonParts do
-                                    local part = skeletonParts[i]
-                                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(part.Position)
-                                    if screenPos then
-                                        local x, y = screenPos.X, screenPos.Y
-                                        local size = 5
-                                        local color = _G.ESPColor
-                                        local transparency = _G.ESPTransparency
-                                        game.Workspace.CurrentCamera:DrawCircle(x, y, size, color, transparency)
-                                    end
-                                end
-                            end
+local BoxESP = Instance.new("Frame")
+BoxESP.Name = "BoxESP"
+BoxESP.Size = UDim2.new(0, 100, 0, 100)
+_G.BoxESP.BackgroundColor3 = Color3.new(1, 0, 0)
+_G.BoxESP.BorderSizePixel = 0
+BoxESP.Parent = ESP
 
-                            -- Draw name ESP
-                            if _G.NameESP then
-                                local name = v.Name
-                                local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(rootPart.Position + Vector3.new(0, 2, 0))
-                                if screenPos then
-                                    local x, y = screenPos.X, screenPos.Y
-                                    local size = 12
-                                    local color = _G.ESPColor
-                                    local transparency = _G.ESPTransparency
-                                    game.Workspace.CurrentCamera:DrawText(name, x, y, size, color, transparency, "Roboto", "Left", "Top")
-                                end
-                            end
-                        end
+local function DrawBoxESP(player)
+    if player ~= Players.LocalPlayer then
+        local character = player.Character
+        if character then
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                local distance = _G.ESPDistance or 100 -- Default distance is 100
+                if _G.ESPDistance then
+                    distance = _G.ESPDistance
+                end
+                if (rootPart.Position - Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= distance then
+                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(rootPart.Position)
+                    if screenPos then
+                        local x, y = screenPos.X, screenPos.Y
+                        local size = 5
+                        local color = Color3.new(1, 0, 0)
+                        local transparency = 0.5
+                        BoxESP.Position = UDim2.new(0, x - size / 2, 0, y - size / 2)
+                        BoxESP.Size = UDim2.new(0, size, 0, size)
+                        BoxESP.BackgroundColor3 = color
+                        BoxESP.BackgroundTransparency = transparency
                     end
                 end
             end
         end
     end
 end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in ipairs(Players:GetPlayers()) do
+        DrawBoxESP(player)
+    end
+end)
