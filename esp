@@ -10,6 +10,27 @@ local function DrawESP()
                     if rootPart then
                         local distance = (rootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
                         if distance <= _G.ESPRange then
+                            -- Draw corner ESP
+                            if _G.CornerESP then
+                                local corners = {
+                                    {rootPart.Position + Vector3.new(-0.5, 0, -0.5)},
+                                    {rootPart.Position + Vector3.new(0.5, 0, -0.5)},
+                                    {rootPart.Position + Vector3.new(0.5, 0, 0.5)},
+                                    {rootPart.Position + Vector3.new(-0.5, 0, 0.5)}
+                                }
+                                for i = 1, #corners do
+                                    local corner = corners[i]
+                                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(corner)
+                                    if screenPos then
+                                        local x, y = screenPos.X, screenPos.Y
+                                        local size = 5
+                                        local color = _G.ESPColor
+                                        local transparency = _G.ESPTransparency
+                                        game.Workspace.CurrentCamera:DrawCircle(x, y, size, color, transparency)
+                                    end
+                                end
+                            end
+
                             -- Draw box ESP
                             if _G.BoxESP then
                                 local boxSize = Vector3.new(1, 2, 1)
@@ -45,47 +66,22 @@ local function DrawESP()
                                 end
                             end
 
-                            local function DrawESP()
-    if not _G.ESPEnabled then return end
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer then
-            local character = v.Character
-            if character then
-                local humanoid = character:FindFirstChild("Humanoid")
-                if humanoid then
-                    local rootPart = character:FindFirstChild("HumanoidRootPart")
-                    if rootPart then
-                        local distance = (rootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                        if distance <= _G.ESPRange then
-                            -- Draw corner ESP
-                            if _G.CornerESP then
-                                local corners = {
-                                    {rootPart.Position + Vector3.new(-0.5, 0, -0.5)},
-                                    {rootPart.Position + Vector3.new(0.5, 0, -0.5)},
-                                    {rootPart.Position + Vector3.new(0.5, 0, 0.5)},
-                                    {rootPart.Position + Vector3.new(-0.5, 0, 0.5)}
-                                }
-                                for i = 1, #corners do
-                                    local corner = corners[i]
-                                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(corner)
-                                    if screenPos then
-                                        local x, y = screenPos.X, screenPos.Y
-                                        local size = 5
-                                        local color = _G.ESPColor
-                                        local transparency = _G.ESPTransparency
-                                        game.Workspace.CurrentCamera:DrawCircle(x, y, size, color, transparency)
-                                    end
+                            -- Draw name ESP
+                            if _G.NameESP then
+                                local name = v.Name
+                                local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(rootPart.Position + Vector3.new(0, 2, 0))
+                                if screenPos then
+                                    local x, y = screenPos.X, screenPos.Y
+                                    local size = 12
+                                    local color = _G.ESPColor
+                                    local transparency = _G.ESPTransparency
+                                    game.Workspace.CurrentCamera:DrawText(name, x, y, size, color, transparency, "Roboto", "Left", "Top")
                                 end
                             end
-                            -- Draw name ESP
-if _G.NameESP then
-    local name = v.Name
-    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(rootPart.Position)
-    if screenPos then
-        local x, y = screenPos.X, screenPos.Y
-        local size = 12
-        local color = _G.ESPColor
-        local transparency = _G.ESPTransparency
-        game.Workspace.CurrentCamera:DrawText(name, x, y, size, color, transparency, "Roboto", "Left", "Top")
+                        end
+                    end
+                end
+            end
+        end
     end
 end
