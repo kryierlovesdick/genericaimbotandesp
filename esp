@@ -1,47 +1,53 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local World = game:GetService('Workspace');
+local Players = game:GetService('Players');
+local Player = Players['LocalPlayer'];
 
-local ESP = Instance.new("ScreenGui")
-ESP.Name = "ESP"
-ESP.Parent = game.CoreGui
+local ChamsColors = {
+    {'White', Color3.new(1, 1, 1)};
+    {'Black', Color3.new(0, 0, 0)};
+    {'Red', Color3.new(1, 0, 0)};
+}
 
-local BoxESP = Instance.new("Frame")
-BoxESP.Name = "BoxESP"
-BoxESP.Size = UDim2.new(0, 100, 0, 100)
-_G.BoxESPBackgroundColor3 = Color3.new(1, 0, 0)
-_G.BoxESPBorderSizePixel = 0
-BoxESP.Parent = ESP
+local function getTeam(player)
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild('Humanoid')
+        if humanoid then
+            return humanoid.Team
+        end
+    end
+    return nil
+end
 
-local function DrawBoxESP(player)
-    if player ~= Players.LocalPlayer then
-        local character = player.Character
-        if character then
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            if rootPart then
-                local distance = _G.ESPDistance or 100 -- Default distance is 100
-                if _G.ESPDistance then
-                    distance = _G.ESPDistance
-                end
-                if (rootPart.Position - Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= distance then
-                    local screenPos = game.Workspace.CurrentCamera:WorldToScreenPoint(rootPart.Position)
-                    if screenPos then
-                        local x, y = screenPos.X, screenPos.Y
-                        local size = 5
-                        local color = Color3.new(1, 0, 0)
-                        local transparency = 0.5
-                        BoxESP.Position = UDim2.new(0, x - size / 2, 0, y - size / 2)
-                        BoxESP.Size = UDim2.new(0, size, 0, size)
-                        BoxESP.BackgroundColor3 = color
-                        BoxESP.BackgroundTransparency = transparency
-                    end
+local function isTeammate(player)
+    local team = getTeam(player)
+    if team then
+        return team == getTeam(Player)
+    end
+    return false
+end
+
+local function chams(player)
+    local character = player.Character
+    if character then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA('BasePart') then
+                if isTeammate(player) then
+                    part.BrickColor = ChamsColors[1][2] -- White
+                else
+                    part.BrickColor = ChamsColors[2][2] -- Black
                 end
             end
         end
     end
 end
 
-RunService.RenderStepped:Connect(function()
-    for _, player in ipairs(Players:GetPlayers()) do
-        DrawBoxESP(player)
+Players.PlayerAdded:Connect(chams)
+Players.PlayerRemoving:Connect(chams)
+
+while true do
+    for _, player in pairs(Players:GetPlayers()) do
+        chams(player)
     end
-end)
+    wait()
+end
